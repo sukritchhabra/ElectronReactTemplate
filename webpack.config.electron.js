@@ -96,7 +96,7 @@ module.exports = {
     before: () => {
       if (IS_ELECTRON) {
         spawn('electron', ['./src/electron.js'], {
-          env: { ...process.env, PORT: port },
+          env: process.env,
         })
           .on('close', code => process.exit(code))
           .on('error', spawnError => console.error(spawnError))
