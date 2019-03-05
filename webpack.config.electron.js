@@ -1,4 +1,5 @@
 /* global require, module, __dirname */
+/* eslint-disable no-console */
 
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
@@ -8,10 +9,14 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin'); // Copy assets to /docs
 
 const webpack = require('webpack');
+const { spawn } = require('child_process');
+const { DEFAULT_DEV_PORT } = require('./src/utils/index.js');
 
-const { NODE_ENV } = process.env;
+const { NODE_ENV, PORT } = process.env;
+const port = PORT || DEFAULT_DEV_PORT;
 const IS_PROD = NODE_ENV === 'production';
 const IS_DEV = NODE_ENV === 'development';
+const IS_ELECTRON = NODE_ENV === 'electron';
 
 module.exports = {
   entry: {
@@ -87,6 +92,19 @@ module.exports = {
     historyApiFallback: true,
     hot: true,
     overlay: true,
+    port,
+    before: () => {
+      if (IS_ELECTRON) {
+        spawn('electron', ['./src/electron.js'], {
+          env: { ...process.env, PORT: port },
+        })
+          .on('close', code => process.exit(code))
+          .on('error', spawnError => console.error(spawnError))
+          .stdout.on('data', (data) => {
+            console.log(`stdout: ${data}`);
+          });
+      }
+    }
   },
 
   plugins: [
@@ -107,8 +125,10 @@ module.exports = {
         ENV: JSON.stringify(process.env.NODE_ENV),
         PROD: JSON.stringify('production'),
         DEV: JSON.stringify('development'),
+        ELECTRON: JSON.stringify('electron'),
         IS_PROD: JSON.stringify(IS_PROD),
         IS_DEV: JSON.stringify(IS_DEV),
+        IS_ELECTRON: JSON.stringify(IS_ELECTRON),
       }
     }),
     new Dotenv({
