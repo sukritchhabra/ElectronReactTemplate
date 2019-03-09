@@ -17,6 +17,10 @@
     "sourceType": "module"
   },
 
+  "globals": {
+    "APP_CONFIG": true
+  },
+
   "plugins": [
     "react"
   ],
@@ -39,6 +43,7 @@
       "webpack": {
         "config": "webpack.config.js"
       }
-    }
+    },
+    "import/core-modules": ["electron"]
   }
 }

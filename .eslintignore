@@ -1,3 +1,4 @@
 dist/*
 docs/*
 src/__tests__/setup.js
+alarm-darwin-x64/*

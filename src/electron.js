@@ -1,8 +1,12 @@
+const url = require('url');
+const path = require('path');
 const { app, BrowserWindow } = require('electron');
 const { DEFAULT_DEV_PORT } = require('./utils/index.js');
 
-const { PORT } = process.env;
+const { PORT, NODE_ENV } = process.env;
 const port = PORT || DEFAULT_DEV_PORT;
+
+const IS_PROD = NODE_ENV === 'production' || NODE_ENV === undefined;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -12,7 +16,15 @@ function createWindow() {
   // Create the browser window.
   win = new BrowserWindow();
 
-  const starturl = `http://localhost:${port}`;
+  const starturlProd = url.format({
+    pathname: path.join(__dirname, '../docs/index.html'),
+    protocol: 'file:',
+    slashes: true
+  });
+  const starturlDev = `http://localhost:${port}`;
+
+  // If in prod use build/docs folder, otherwise use localhost
+  const starturl = IS_PROD ? starturlProd : starturlDev;
 
   // and load the index.html of the app.
   // win.loadFile('index.html');
